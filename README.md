@@ -6,13 +6,19 @@ This repository provides a PyTorch implementation of AUTOVC, appropriately modif
 
 ### Dependencies
 - Python 3
+- jupyter
 - Numpy
 - PyTorch >= v0.4.1
-- TensorFlow >= v1.3 (only for tensorboard)
-- librosa
-- tqdm
 - wavenet_vocoder ```pip install wavenet_vocoder```
   for more information, please refer to https://github.com/r9y9/wavenet_vocoder
+- librosa
+- soundfile
+- scipy
+- tqdm
+- matplotlib
+- wavio
+- spleeter for more information, please refer to https://github.com/deezer/spleeter
+- ffmpeg
 
 ### Pre-trained models
 
