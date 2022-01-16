@@ -1,23 +1,8 @@
 ## AUTOVC: Zero-Shot Voice Style Transfer with Only Autoencoder Loss
 
-## Checkout our new project: Global Rhythm Style Transfer Without Text Transcriptions https://github.com/auspicious3000/AutoPST
+This repository is a fork of [AUTOVC: Zero-Shot Voice Style Transfer with Only Autoencoder Loss](https://github.com/auspicious3000/autovc). 
 
-### Checkout our new project: Unsupervised Speech Decomposition for Rhythm, Pitch, and Timbre Conversion https://github.com/auspicious3000/SpeechSplit
-
-This repository provides a PyTorch implementation of AUTOVC.
-
-AUTOVC is a many-to-many non-parallel voice conversion framework. 
-
-If you find this work useful and use it in your research, please consider citing our paper.
-
-```
-@InProceedings{pmlr-v97-qian19c, title = {{A}uto{VC}: Zero-Shot Voice Style Transfer with Only Autoencoder Loss}, author = {Qian, Kaizhi and Zhang, Yang and Chang, Shiyu and Yang, Xuesong and Hasegawa-Johnson, Mark}, pages = {5210--5219}, year = {2019}, editor = {Kamalika Chaudhuri and Ruslan Salakhutdinov}, volume = {97}, series = {Proceedings of Machine Learning Research}, address = {Long Beach, California, USA}, month = {09--15 Jun}, publisher = {PMLR}, pdf = {http://proceedings.mlr.press/v97/qian19c/qian19c.pdf}, url = {http://proceedings.mlr.press/v97/qian19c.html} }
-```
-
-
-### Audio Demo
-
-The audio demo for AUTOVC can be found [here](https://auspicious3000.github.io/autovc-demo/)
+This repository provides a PyTorch implementation of AUTOVC, appropriately modified in order to make style transfer well also on languages other than English.
 
 ### Dependencies
 - Python 3
@@ -61,6 +46,17 @@ We have included a small set of training audio files in the wav folder. However,
 3.Run the main training script: ```python main.py```
 
 Converges when the reconstruction loss is around 0.0001.
+
+## Train with new vocoder
+```
+python3.8 make_spect.py # create folder spmel
+python3.8 make_spect_other_vocoder.py # create the folder spmel_other
+CUDA_VISIBLE_DEVICES="0" python3.8 make_metadata.py --root-dir="./spmel" # create the spmel/train.pkl # use speaker encoder on /spmel
+cp spmel/train.pkl spmel_other # copy the spmel/train.pkl into spmel_other/train.pkl
+CUDA_VISIBLE_DEVICES="0" python3.8 main.py --data_dir="spmel_other" \
+    --outfile-path="/home/super/Models/autovc_simple/generator.pth" \
+    --num_iters 10000 --batch_size=6 --dim_neck 32 --dim_emb 256 --dim_pre 512 --freq 32
+CUDA_VISIBLE_DEVICES="0" python3.8 test_audio.py
 
 
 
