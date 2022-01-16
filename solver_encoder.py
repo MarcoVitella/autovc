@@ -19,6 +19,10 @@ class Solver(object):
         self.dim_emb = config.dim_emb
         self.dim_pre = config.dim_pre
         self.freq = config.freq
+        
+        # load and save path configurations.
+        self.pretrained = config.pretrained
+        self.outfile_path = config.outfile_path
 
         # Training configurations.
         self.batch_size = config.batch_size
@@ -34,9 +38,11 @@ class Solver(object):
 
             
     def build_model(self):
-        
-        self.G = Generator(self.dim_neck, self.dim_emb, self.dim_pre, self.freq)        
-        
+        self.G = Generator(self.dim_neck, self.dim_emb, self.dim_pre, self.freq)   
+        if self.pretrained:
+            print('load pretrained...')  
+            g_checkpoint = torch.load(self.pretrained, map_location='cpu')
+            self.G.load_state_dict(g_checkpoint['model'])
         self.g_optimizer = torch.optim.Adam(self.G.parameters(), 0.0001)
         
         self.G.to(self.device)
@@ -75,7 +81,7 @@ class Solver(object):
                 x_real, emb_org = next(data_iter)
             
             
-            x_real = x_real.to(self.device) 
+            x_real = x_real.to(self.device)
             emb_org = emb_org.to(self.device) 
                         
        
@@ -87,8 +93,8 @@ class Solver(object):
                         
             # Identity mapping loss
             x_identic, x_identic_psnt, code_real = self.G(x_real, emb_org, emb_org)
-            g_loss_id = F.mse_loss(x_real, x_identic)   
-            g_loss_id_psnt = F.mse_loss(x_real, x_identic_psnt)   
+            g_loss_id = F.mse_loss(x_real, x_identic.squeeze(1))   
+            g_loss_id_psnt = F.mse_loss(x_real, x_identic_psnt.squeeze(1))   
             
             # Code semantic loss.
             code_reconst = self.G(x_identic_psnt, emb_org, None)
@@ -119,6 +125,14 @@ class Solver(object):
                 for tag in keys:
                     log += ", {}: {:.4f}".format(tag, loss[tag])
                 print(log)
+                print('\tsaving model...')
+                torch.save(self.G.state_dict(), self.outfile_path + f'.tmp')
+            if (i+1) % 1000 == 0:
+                j = i + 1
+                print('\tsaving model...')
+                torch.save(self.G.state_dict(), './pak_pth/generator_Pak' + str(j) + '.pth')
+        print('saving model...')
+        torch.save(self.G.state_dict(), self.outfile_path)
                 
 
     

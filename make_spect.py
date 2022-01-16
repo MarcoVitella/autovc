@@ -6,6 +6,18 @@ from scipy import signal
 from scipy.signal import get_window
 from librosa.filters import mel
 from numpy.random import RandomState
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--root-dir', type=str, default='./wavs')
+parser.add_argument('--target-dir', type=str, default='./spmel')
+args = parser.parse_args()
+
+# audio file directory
+rootDir = args.root_dir
+# spectrogram directory
+targetDir = args.target_dir
+
 
 
 def butter_highpass(cutoff, fs, order=5):
@@ -34,12 +46,6 @@ def pySTFT(x, fft_length=1024, hop_length=256):
 mel_basis = mel(16000, 1024, fmin=90, fmax=7600, n_mels=80).T
 min_level = np.exp(-100 / 20 * np.log(10))
 b, a = butter_highpass(30, 16000, order=5)
-
-
-# audio file directory
-rootDir = './wavs'
-# spectrogram directory
-targetDir = './spmel'
 
 
 dirName, subdirList, _ = next(os.walk(rootDir))
